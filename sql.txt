@@ -1,0 +1,127 @@
+CREATE TABLE Donation (
+    DonationID NUMBER PRIMARY KEY,
+    Name VARCHAR2(100),
+    CardNumber VARCHAR2(16),
+    CVV VARCHAR2(4),
+    Amount NUMBER,
+    ExpireDate VARCHAR2(10)
+);
+
+CREATE SEQUENCE donation_id_seq
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+
+CREATE OR REPLACE PROCEDURE GetDonationByName (
+    p_Name IN VARCHAR2,
+    p_DonationID OUT NUMBER,
+    p_CardNumber OUT VARCHAR2,
+    p_CVV OUT VARCHAR2,
+    p_Amount OUT NUMBER,
+    p_ExpireDate OUT VARCHAR2
+)
+AS
+BEGIN
+    SELECT DonationID, CardNumber, CVV, Amount, ExpireDate
+    INTO p_DonationID, p_CardNumber, p_CVV, p_Amount, p_ExpireDate
+    FROM Donation
+    WHERE Name = p_Name;
+END;
+
+CREATE OR REPLACE PROCEDURE GetTopDonors (
+    p_NumDonors IN NUMBER,
+    p_Cursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN p_Cursor FOR
+    SELECT * FROM (
+        SELECT * FROM Donation ORDER BY Amount DESC
+    ) WHERE ROWNUM <= p_NumDonors;
+END;
+
+
+CREATE TABLE Organizers (
+    organizer_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    email VARCHAR(100),
+    phone_number VARCHAR(20)
+);
+
+CREATE TABLE Attendees (
+    attendee_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    email VARCHAR(100),
+    phone_number VARCHAR(20)
+);
+
+INSERT INTO Organizers (organizer_id, name, email, phone_number)
+VALUES (1, 'John Doe', 'john@example.com', '123-456-7890');
+
+INSERT INTO Organizers (organizer_id, name, email, phone_number)
+VALUES (2, 'Jane Smith', 'jane@example.com', '987-654-3210');
+
+INSERT INTO Organizers (organizer_id, name, email, phone_number)
+VALUES (3, 'David Brown', 'david@example.com', '555-123-4567');
+
+INSERT INTO Attendees (attendee_id, name, email, phone_number)
+VALUES (101, 'Alice Johnson', 'alice@example.com', '111-222-3333');
+
+INSERT INTO Attendees (attendee_id, name, email, phone_number)
+VALUES (102, 'Bob Davis', 'bob@example.com', '444-555-6666');
+
+INSERT INTO Attendees (attendee_id, name, email, phone_number)
+VALUES (103, 'Emily White', 'emily@example.com', '777-888-9999');
+
+
+CREATE TABLE coupons (
+    coupID INT PRIMARY KEY,
+    Title VARCHAR(100),
+    maker VARCHAR(100),
+    Genre VARCHAR(50),
+    PublicationYear INT
+);
+
+CREATE TABLE needy (
+    needyID INT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Address VARCHAR(200),
+    Phone VARCHAR(20),
+    Email VARCHAR(100)
+);
+
+CREATE TABLE transactions (
+    transID INT PRIMARY KEY,
+    needyID INT,
+    coupID INT,
+    transDate DATE,
+    expireDate DATE,
+    FOREIGN KEY (needyID) REFERENCES needy(needyID),
+    FOREIGN KEY (coupID) REFERENCES coupons(coupID)
+);
+
+INSERT INTO coupons (coupID, Title, maker, Genre, PublicationYear) VALUES (1, 'To Kill a Mockingbird', 'Harper Lee', 'Fiction', 1960);
+INSERT INTO coupons (coupID, Title, maker, Genre, PublicationYear) VALUES (2, '1984', 'George Orwell', 'Dystopian', 1949);
+INSERT INTO coupons (coupID, Title, maker, Genre, PublicationYear) VALUES (3, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Classic', 1925);
+INSERT INTO coupons (coupID, Title, maker, Genre, PublicationYear) VALUES (4, 'Pride and Prejudice', 'Jane Austen', 'Romance', 1813);
+INSERT INTO coupons (coupID, Title, maker, Genre, PublicationYear) VALUES (5, 'The Catcher in the Rye', 'J.D. Salinger', 'Coming-of-age', 1951);
+
+INSERT INTO needy (needyID, FirstName, LastName, Address, Phone, Email) VALUES (1, 'John', 'Doe', '123 Main St, Anytown', '555-1234', 'john@example.com');
+INSERT INTO needy (needyID, FirstName, LastName, Address, Phone, Email) VALUES (2, 'Jane', 'Smith', '456 Elm St, Othertown', '555-5678', 'jane@example.com');
+INSERT INTO needy (needyID, FirstName, LastName, Address, Phone, Email) VALUES (3, 'Alice', 'Johnson', '789 Oak St, Anothertown', '555-9012', 'alice@example.com');
+INSERT INTO needy (needyID, FirstName, LastName, Address, Phone, Email) VALUES (4, 'Bob', 'Williams', '321 Maple St, Somewhere', '555-3456', 'bob@example.com');
+INSERT INTO needy (needyID, FirstName, LastName, Address, Phone, Email) VALUES (5, 'Emily', 'Brown', '654 Pine St, Nowhere', '555-7890', 'emily@example.com');
+
+INSERT INTO transactions (transID, needyID, coupID, transDate, expireDate) VALUES (1, 1, 1, DATE '2024-04-01', DATE '2024-04-15');
+INSERT INTO transactions (transID, needyID, coupID, transDate, expireDate) VALUES (2, 2, 2, DATE '2024-04-02', DATE '2024-04-16');
+INSERT INTO transactions (transID, needyID, coupID, transDate, expireDate) VALUES (3, 3, 3, DATE '2024-04-03', DATE '2024-04-17');
+INSERT INTO transactions (transID, needyID, coupID, transDate, expireDate) VALUES (4, 4, 4, DATE '2024-04-04', DATE '2024-04-18');
+INSERT INTO transactions (transID, needyID, coupID, transDate, expireDate) VALUES (5, 5, 5, DATE '2024-04-05', DATE '2024-04-19');
+INSERT INTO transactions (transID, needyID, coupID, transDate, expireDate) VALUES (6, 1, 2, DATE '2024-04-06', DATE '2024-04-20');
+INSERT INTO transactions (transID, needyID, coupID, transDate, expireDate) VALUES (7, 2, 3, DATE '2024-04-07', DATE '2024-04-21');
+INSERT INTO transactions (transID, needyID, coupID, transDate) VALUES (8, 3, 4, DATE '2024-04-08');
+INSERT INTO transactions (transID, needyID, coupID, transDate) VALUES (9, 4, 5, DATE '2024-04-09');
+INSERT INTO transactions (transID, needyID, coupID, transDate) VALUES (10, 5, 1, DATE '2024-04-10');
+
